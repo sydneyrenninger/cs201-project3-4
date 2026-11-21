@@ -132,20 +132,83 @@ void Hospital::checkCriticalPatients() {
     }
 }
 
+
 void Hospital::assignDoctors() {
     const int now = simtime::minuteOfDay(tick_);
-    for (const auto& d : doctors_) {
-        if (d->isBusy() || !d->isOnShift(now)) continue;
+
+    // Priority queue: highest-skilled doctor first.
+    std::priority_queue<
+        Doctor*,
+        std::vector<Doctor*>,
+        AvailableDoctorOrder
+    > available;
+
+    // Find doctors who are currently free and on shift.
+    for (const auto& doctor : doctors_) {
+        if (!doctor->isBusy() && doctor->isOnShift(now)) {
+            available.push(doctor.get());
+        }
+    }
+
+    // Assign the highest-priority patient to the
+    // highest-skilled available doctor.
+    while (!available.empty()) {
         Patient* p = popNextPatient();
-        if (!p) return;   // nobody is waiting
+
+        // Stop if no patients are waiting.
+        if (!p) break;
+
+        Doctor* d = available.top();
+        available.pop();
+
         int ticks = d->treatmentTicksFor(*p);
+
         d->beginTreatment(p, ticks);
-        p->startTreatment(d.get(), tick_);
-        logEvent(doctorName(*d) + " (skill " + std::to_string(d->skill()) + ") is seeing " + describe(*p) +
-                 ", about " + simtime::formatDuration(ticks) + ". Waited " +
-                 simtime::formatDuration(p->ticksWaited(tick_)) + ".");
+        p->startTreatment(d, tick_);
+
+        logEvent(
+            doctorName(*d) +
+            " (skill " + std::to_string(d->skill()) +
+            ") is seeing " + describe(*p) +
+            ", about " + simtime::formatDuration(ticks) +
+            ". Waited " +
+            simtime::formatDuration(p->ticksWaited(tick_)) +
+            "."
+        );
     }
 }
+
+
+std::vector<const Doctor*>
+Hospital::availableDoctorsInPriorityOrder() const {
+
+    const int now = simtime::minuteOfDay(tick_);
+
+    std::priority_queue<
+        Doctor*,
+        std::vector<Doctor*>,
+        AvailableDoctorOrder
+    > available;
+
+    // Collect free doctors who are on shift.
+    for (const auto& doctor : doctors_) {
+        if (!doctor->isBusy() && doctor->isOnShift(now)) {
+            available.push(doctor.get());
+        }
+    }
+
+    std::vector<const Doctor*> result;
+
+    // Extract doctors in priority order.
+    while (!available.empty()) {
+        result.push_back(available.top());
+        available.pop();
+    }
+
+    return result;
+}
+
+
 
 // ---------------------------------------------------------------------------
 // Triage priority queue

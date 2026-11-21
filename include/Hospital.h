@@ -44,6 +44,18 @@ struct TriageOrder {
     }
 };
 
+
+// Higher-skilled doctors have higher priority.
+// If skills are equal, order by doctor key.
+struct AvailableDoctorOrder {
+    bool operator()(const Doctor* a, const Doctor* b) const {
+        if (a->skill() != b->skill())
+            return a->skill() < b->skill();
+        return b->key() < a->key();
+    }
+};
+
+
 struct HospitalStats {
     int notYetArrived = 0;
     int waiting = 0;
@@ -92,6 +104,8 @@ public:
     // Waiting patients, highest priority first (the order they will be seen).
     std::vector<const Patient*> waitingInPriorityOrder() const;
     const std::vector<std::unique_ptr<Doctor>>& doctors() const { return doctors_; }
+    // Return free, on-shift doctors ordered by skill.
+    std::vector<const Doctor*> availableDoctorsInPriorityOrder() const;
     const std::vector<std::unique_ptr<Patient>>& patients() const { return patients_; }
     const std::deque<std::string>& log() const { return log_; }   // oldest first
     HospitalStats stats() const;

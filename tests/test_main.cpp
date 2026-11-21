@@ -166,6 +166,76 @@ void testShiftsRespected() {
     CHECK(h.stats().inTreatment == 1);
 }
 
+
+void testAvailableDoctorPriorityQueue() {
+    // Insert the lower-skilled doctor first.
+    std::vector<std::unique_ptr<Doctor>> doctors;
+    doctors.push_back(doc("Junior", 2, 0, 0));
+    doctors.push_back(doc("Expert", 10, 0, 0));
+    doctors.push_back(doc("OffShift", 9, 8, 9));
+
+    std::vector<std::unique_ptr<Patient>> patients;
+    patients.push_back(pat("Critical", 10, 0, 100));
+    patients.push_back(pat("Mild", 2, 0, 100));
+
+    Hospital h(std::move(doctors), std::move(patients), 0);
+
+    // Highest-skilled doctor gets the critical patient.
+    CHECK(h.doctors()[1]->currentPatient() != nullptr);
+    CHECK(h.doctors()[1]->currentPatient()->name() == "Critical");
+
+    // Lower-skilled doctor gets the mild patient.
+    CHECK(h.doctors()[0]->currentPatient() != nullptr);
+    CHECK(h.doctors()[0]->currentPatient()->name() == "Mild");
+
+    // Off-shift doctor must not receive a patient.
+    CHECK(h.doctors()[2]->currentPatient() == nullptr);
+
+    // Both working doctors are busy.
+    CHECK(h.availableDoctorsInPriorityOrder().empty());
+}
+
+void testAvailableDoctorQueueFreeAndShift() {
+    std::vector<std::unique_ptr<Doctor>> doctors;
+    doctors.push_back(doc("Junior", 2, 0, 0));
+    doctors.push_back(doc("Expert", 10, 0, 0));
+    doctors.push_back(doc("Late", 9, 8, 9));
+
+    std::vector<std::unique_ptr<Patient>> patients;
+
+    Hospital h(
+        std::move(doctors),
+        std::move(patients),
+        simtime::toTick(1, 6 * 60)
+    );
+
+    auto available = h.availableDoctorsInPriorityOrder();
+
+    CHECK(available.size() == 2);
+    CHECK(available[0]->name() == "Expert");
+    CHECK(available[1]->name() == "Junior");
+
+    // At 08:00, Late starts working.
+    h.advance(8);
+
+    available = h.availableDoctorsInPriorityOrder();
+
+    CHECK(available.size() == 3);
+    CHECK(available[0]->name() == "Expert");
+    CHECK(available[1]->name() == "Late");
+    CHECK(available[2]->name() == "Junior");
+
+    // At 09:00, Late's shift ends.
+    h.advance(4);
+
+    available = h.availableDoctorsInPriorityOrder();
+
+    CHECK(available.size() == 2);
+    CHECK(available[0]->name() == "Expert");
+    CHECK(available[1]->name() == "Junior");
+}
+
+
 void testDatasetRun() {
     auto h = Hospital::fromFiles("data/doctors.csv", "data/patients.csv");
     std::size_t total = h->patients().size();
@@ -218,6 +288,8 @@ int main() {
     testDoctorShifts();
     testTriageAndCritical();
     testShiftsRespected();
+    testAvailableDoctorPriorityQueue();
+    testAvailableDoctorQueueFreeAndShift();
     try {
         testDatasetRun();
     } catch (const std::exception& e) {
