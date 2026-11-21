@@ -127,6 +127,7 @@ classDiagram
         +advance(ticks)
         +finished() bool
         +waitingInPriorityOrder() vector~Patient*~
+        +availableDoctorsInPriorityOrder() vector~Doctor*~
         +stats() HospitalStats
         +lookup(query) LookupResult
         -finishTreatments()
@@ -135,6 +136,10 @@ classDiagram
         -checkCriticalPatients()
         -assignDoctors()
         -popNextPatient() Patient*
+    }
+
+    class AvailableDoctorOrder {
+        +operator()(a, b) bool
     }
 
     class HospitalStats {
@@ -204,6 +209,8 @@ classDiagram
     Hospital *-- "2" BTree : patientTree_, doctorTree_
     Hospital *-- TriageEntry : priority_queue
     TriageOrder ..> TriageEntry : compares
+    Hospital ..> AvailableDoctorOrder : doctor priority_queue
+    AvailableDoctorOrder ..> Doctor : compares skill
     Hospital ..> HospitalStats : creates
     Hospital ..> LookupResult : creates
     Hospital ..> dataloader : uses

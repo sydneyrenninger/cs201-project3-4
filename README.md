@@ -59,8 +59,10 @@ minutes of hospital time. The simulation starts on Day 1 at 06:00. Each tick,
 4. **Critical check.** Every patient has a time limit in the data (e.g. 30 minutes for
    chest pain, 6 hours for a sore throat). A waiting patient who goes past it enters a
    **critical state**: their condition becomes 10 and they move to the front of the queue.
-5. **Doctor assignment.** Every doctor who is free **and on shift** takes the next patient
-   from the priority queue.
+5. **Doctor assignment.** The doctors who are free **and on shift** go into a second
+   priority queue ordered by skill. The most skilled free doctor takes the patient at the
+   top of the triage queue, the next most skilled doctor takes the next patient, and so on.
+   This way the sickest patient gets the best doctor available.
 
 ### Considerations from the assignment
 
@@ -72,7 +74,7 @@ minutes of hospital time. The simulation starts on Day 1 at 06:00. Each tick,
 | Patients enter and leave with a condition level; some arrive together | Arrival day/time and condition come from `patients.csv`; patients leave when discharged. Group arrivals are logged ("4 patients arrived at the same time"). |
 | We know a patient's condition before they are seen | The triage queue is ordered by condition as soon as they arrive. |
 | B-Tree for patient and doctor data | `BTree<PersonKey, Patient*, 3>` and `BTree<PersonKey, Doctor*, 3>` (see section 2). |
-| A data structure to decide who is seen next | `std::priority_queue` (a binary heap). See below. |
+| A data structure to decide who is seen next | `std::priority_queue` (a binary heap) for patients, plus a second one that matches the most skilled free doctor to the sickest patient. See below. |
 
 ### Data structures
 
@@ -89,6 +91,13 @@ minutes of hospital time. The simulation starts on Day 1 at 06:00. Each tick,
   gives O(log n) push and pop. The heap cannot change a priority in place, so when a patient
   becomes critical we push a new entry with level 10. The old entry stays in the heap but is
   "stale" (its saved level no longer matches the patient), and it is skipped when popped.
+- **Doctor priority queue (`std::priority_queue<Doctor*, ..., AvailableDoctorOrder>`).**
+  Each tick, the free, on-shift doctors are put in a max-heap ordered by skill (ties
+  broken by name/key so the order is always the same). Doctors are popped together with
+  patients, so the highest-skill doctor gets the highest-priority patient. Without it,
+  doctors would take patients in file order, and a skill 4 doctor could get a level 10
+  patient while a skill 9 doctor sat idle. `Hospital::availableDoctorsInPriorityOrder()`
+  returns the same order (used by the tests).
 - **`std::vector` of `unique_ptr`** owns all patients (sorted by arrival time, so admitting
   arrivals just moves an index forward) and all doctors. The trees and the queue hold
   non-owning pointers.
@@ -173,10 +182,10 @@ they check every B-Tree rule, and then check search, range search and the height
 
 | Member | Contribution |
 | --- | --- |
-| Sameeksha Sharma | |
-| Sydney Renninger | |
-| Long Huynh | |
-| Anh Thu Nguyen | |
+| Sameeksha Sharma |B tree implementation|
+| Sydney Renninger |Writing report |
+| Long Huynh |UI and sample data|
+| Anh Thu Nguyen |Testing and UML diagram|
 
 ---
 
@@ -216,5 +225,5 @@ gives the same files. Shifts are spread around the clock, most patients are mild
 are severe, sicker patients get shorter time limits, some patients arrive in groups, and some
 share a name and age with a different date of birth. Run the GUI on it with
 `make run-large`, or `./hospital data/doctors_large.csv data/patients_large.csv`. With the
-default settings all 400 patients are discharged by Day 4 06:00 and 12 go critical (average
-wait 35 minutes), so the waiting room fills up and the priority queue has real work to do.
+default settings all 400 patients are discharged by Day 4 06:00 and 5 go critical (average
+wait 25 minutes), so the waiting room fills up and the priority queue has real work to do.
