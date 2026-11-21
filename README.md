@@ -173,7 +173,7 @@ they check every B-Tree rule, and then check search, range search and the height
 | Member | Contribution |
 | --- | --- |
 | Sameeksha Sharma |"B-Tree template (BTree.h): insert, search, range search, validation|
-| Sydney Renninger |Writing report, compiling and merging features|
+| Sydney Renninger |Writing report, compiling and merging features, creating MakeFile|
 | Long Huynh |SFML GUI (Gui.cpp), dataset and data generator, auto-play speed control|
 | Anh Thu Nguyen |Testing application and creating UML diagram|
 
