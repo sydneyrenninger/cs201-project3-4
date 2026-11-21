@@ -7,7 +7,7 @@ are stored in a B-Tree that we wrote ourselves.
 
 **Team:** Sameeksha Sharma, Sydney Renninger, Long Huynh, Anh Thu Nguyen
 
-- UML class diagram: [UML.md](UML.md)
+- UML class diagram: [UML.md](UML.md) (renders on GitHub), and a picture of the same diagram: [docs/UML.png](docs/UML.png), [docs/UML.pdf](docs/UML.pdf)
 - Data: [data/doctors.csv](data/doctors.csv), [data/patients.csv](data/patients.csv)
 
 ---
@@ -178,14 +178,12 @@ they check every B-Tree rule, and then check search, range search and the height
 
 ## 3. What was each team member's contribution?
 
-> **TODO (team): fill this in before submitting.**
-
 | Member | Contribution |
 | --- | --- |
-| Sameeksha Sharma |B tree implementation|
-| Sydney Renninger |Writing report |
-| Long Huynh |UI and sample data|
-| Anh Thu Nguyen |Testing and UML diagram|
+| Sameeksha Sharma | Basic structure of the B-Tree, the UML class diagram, and this report |
+| Sydney Renninger | B-Tree implementation |
+| Long Huynh | User interface (SFML GUI) and how it works |
+| Anh Thu Nguyen | Priority queue: deciding which patient is seen next |
 
 ---
 
@@ -199,8 +197,9 @@ tests/     test_main.cpp
 tools/     generate_data.cpp (synthetic data generator)
 data/      doctors.csv, patients.csv (our own dataset, made up for this project),
            doctors_large.csv, patients_large.csv (generated, see below)
+docs/      screenshot.png, UML.png, UML.pdf (picture of the class diagram)
 Makefile
-UML.md     class diagram
+UML.md     class diagram (Mermaid)
 ```
 
 ### Data format

@@ -14,7 +14,7 @@
 #   make SFML_DIR=/opt/homebrew/opt/sfml
 
 CXX      ?= g++
-CXXFLAGS ?= -std=c++17 -Wall -Wextra -O2
+CXXFLAGS ?= -std=c++17 -Wall -Wextra -O2 -Iinclude
 CPPFLAGS += -Iinclude -MMD -MP
 
 BUILD := build

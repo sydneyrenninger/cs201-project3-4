@@ -10,6 +10,7 @@ generate_data
 
 # Course handouts (not our work)
 *.pdf
+!docs/UML.pdf
 
 # Editor / tool folders
 .vscode/

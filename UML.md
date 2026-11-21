@@ -1,6 +1,7 @@
 # UML Class Diagram
 
 GitHub renders the diagram below automatically. (`+` public, `-` private, `#` protected.)
+A picture of the same diagram, for viewers that do not render Mermaid, is in [docs/UML.png](docs/UML.png) and [docs/UML.pdf](docs/UML.pdf).
 
 ```mermaid
 classDiagram
@@ -126,8 +127,8 @@ classDiagram
         +step()
         +advance(ticks)
         +finished() bool
-        +waitingInPriorityOrder() vector~Patient*~
-        +availableDoctorsInPriorityOrder() vector~Doctor*~
+        +waitingInPriorityOrder() vector~const Patient*~
+        +availableDoctorsInPriorityOrder() vector~const Doctor*~
         +stats() HospitalStats
         +lookup(query) LookupResult
         -finishTreatments()
@@ -156,8 +157,8 @@ classDiagram
         +bool ok
         +bool exact
         +string message
-        +vector~Patient*~ patients
-        +vector~Doctor*~ doctors
+        +vector~const Patient*~ patients
+        +vector~const Doctor*~ doctors
         +int patientNodesVisited
         +int doctorNodesVisited
     }
