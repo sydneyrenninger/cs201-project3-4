@@ -169,14 +169,13 @@ they check every B-Tree rule, and then check search, range search and the height
 
 ## 3. What was each team member's contribution?
 
-> **TODO (team): fill this in before submitting.**
 
 | Member | Contribution |
 | --- | --- |
-| Sameeksha Sharma | |
-| Sydney Renninger | |
-| Long Huynh | |
-| Anh Thu Nguyen | |
+| Sameeksha Sharma |"B-Tree template (BTree.h): insert, search, range search, validation|
+| Sydney Renninger |Writing report, compiling and merging features|
+| Long Huynh |SFML GUI (Gui.cpp), dataset and data generator, auto-play speed control|
+| Anh Thu Nguyen |Testing application and creating UML diagram|
 
 ---
 
